@@ -1,0 +1,106 @@
+-- ดึง Rayfield Library มาใช้งาน
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- สร้าง Window หลัก
+local Window = Rayfield:CreateWindow({
+   Name = "Egg Steal Hub 🥚",
+   LoadingTitle = "กำลังโหลดสคริปต์...",
+   LoadingSubtitle = "by Delta Scripting",
+   ConfigurationSaving = {
+      Enabled = false
+   }
+})
+
+-- สร้าง Tab เมนู
+local MainTab = Window:CreateTab("Main Steal", 4483362458)
+
+-- ตัวแปรสำหรับคุมการทำงาน
+local selectedEggName = ""
+local autoStealEnabled = false
+
+-- ฟังก์ชันค้นหาและวาร์ปไปหาไข่
+local function teleportToEgg(eggName)
+    local player = game.Players.LocalPlayer
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+    
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") or v:IsA("Model") then
+            if v.Name == eggName then
+                local targetCFrame = v:IsA("Model") and v:GetPivot() or v.CFrame
+                player.Character.HumanoidRootPart.CFrame = targetCFrame * CFrame.new(0, 3, 0)
+                break
+            end
+        end
+    end
+end
+
+-- ฟังก์ชันดึงรายชื่อไข่ใน workspace มาใส่ในลิสต์
+local function getEggList()
+    local eggList = {}
+    local hash = {}
+    for _, v in pairs(workspace:GetDescendants()) do
+        -- เช็คโมเดลหรือพาร์ทที่มีคำว่า "egg" ในชื่อ
+        if v.Name:lower():find("egg") and not hash[v.Name] then
+            hash[v.Name] = true
+            table.insert(eggList, v.Name)
+        end
+    end
+    if #eggList == 0 then table.insert(eggList, "ไม่พบไข่ในแมพ") end
+    return eggList
+end
+
+-- 1. Dropdown เลือกไข่ที่ต้องการขโมย
+local EggDropdown = MainTab:CreateDropdown({
+   Name = "เลือกไข่ที่จะขโมย",
+   Options = getEggList(),
+   CurrentOption = {""},
+   MultipleOptions = false,
+   Flag = "EggSelect",
+   Callback = function(Option)
+       selectedEggName = Option[1]
+   end,
+})
+
+-- ปุ่มกด Refresh รายชื่อไข่ในแมพ
+MainTab:CreateButton({
+   Name = "รีเฟรชรายชื่อไข่ 🔄",
+   Callback = function()
+       EggDropdown:Refresh(getEggList())
+   end,
+})
+
+-- 2. Toggle เปิด/ปิด การวาร์ปอัตโนมัติ
+MainTab:CreateToggle({
+   Name = "เปิด / ปิด Auto Teleport",
+   CurrentValue = false,
+   Flag = "AutoStealToggle",
+   Callback = function(Value)
+       autoStealEnabled = Value
+       
+       -- วนลูปทำงานเมื่อกดเปิด Toggle
+       task.spawn(function()
+           while autoStealEnabled do
+               if selectedEggName ~= "" and selectedEggName ~= "ไม่พบไข่ในแมพ" then
+                   teleportToEgg(selectedEggName)
+               end
+               task.wait(1) -- ระยะเวลาคูลดาวน์ในการวาร์ปซ้ำ (ปรับตามเหมาะสม)
+           end
+       end)
+   end,
+})
+
+-- 3. ปุ่มกดวาร์ปทันที 1 ครั้ง (Manual)
+MainTab:CreateButton({
+   Name = "วาร์ปไปขโมยทันที (1 ครั้ง)",
+   Callback = function()
+       if selectedEggName ~= "" and selectedEggName ~= "ไม่พบไข่ในแมพ" then
+           teleportToEgg(selectedEggName)
+       else
+           Rayfield:Notify({
+               Title = "แจ้งเตือน",
+               Content = "กรุณาเลือกไข่ก่อนกดวาร์ป!",
+               Duration = 3,
+           })
+       end
+   end,
+})
