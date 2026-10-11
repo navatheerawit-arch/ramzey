@@ -1,0 +1,84 @@
+-- roblox_dump.lua (with UI Toggle Button)
+-- executor: synapse x / wave / xeno / seliware compatible
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:FindFirstChildOfClass("PlayerGui") or CoreGui
+
+-- สร้าง ScreenGui สำหรับปุ่มพับหน้าจอ
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RobloxDumpUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- สร้างกรอบเมนูหลัก
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 220, 0, 160)
+mainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- หัวข้อเมนู
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 35)
+titleLabel.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Text = "Roblox Dumper"
+titleLabel.TextSize = 14
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = mainFrame
+
+-- ปุ่มพับหน้าจอ (- / +)
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 35, 0, 35)
+toggleBtn.Position = UDim2.new(1, -35, 0, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Text = "-"
+toggleBtn.TextSize = 16
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.Parent = mainFrame
+
+-- ปุ่มสั่งรัน Dump
+local dumpBtn = Instance.new("TextButton")
+dumpBtn.Size = UDim2.new(1, -20, 0, 45)
+dumpBtn.Position = UDim2.new(0, 10, 0, 55)
+dumpBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+dumpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+dumpBtn.Text = "Start Dump"
+dumpBtn.TextSize = 14
+dumpBtn.Font = Enum.Font.SourceSansBold
+dumpBtn.Parent = mainFrame
+
+-- สถานะการพับหน้าจอ
+local isMinimized = false
+toggleBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        dumpBtn.Visible = false
+        mainFrame.Size = UDim2.new(0, 220, 0, 35)
+        toggleBtn.Text = "+"
+    else
+        mainFrame.Size = UDim2.new(0, 220, 0, 160)
+        dumpBtn.Visible = true
+        toggleBtn.Text = "-"
+    end
+end)
+
+-- ฟังก์ชันการ Dump ข้อมูล (นำฟังก์ชันเดิมของคุณมาใส่ตรงนี้)
+local function runDump()
+    print("[6larping7] starting full dump...")
+    -- โค้ดการดัมพ์ข้อมูลเดิมของคุณ...
+    print("[+] dump completed!")
+end
+
+dumpBtn.MouseButton1Click:Connect(function()
+    runDump()
+end)
